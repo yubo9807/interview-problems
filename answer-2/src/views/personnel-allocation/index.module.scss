@@ -1,0 +1,43 @@
+
+.box{
+  padding: 20px;
+  border: 1px solid;
+  user-select: none;
+  position: relative;
+  margin-top: 10px;
+  .delete-organization{
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+  }
+}
+:global(.active[data-name]){
+  background: rgba(0,0,0,.2);
+}
+
+.icons{
+  position: absolute;
+  z-index: -9;
+  line-height: 2;
+}
+
+.staff-info{
+  margin-left: 20px;
+  line-height: 2;
+  vertical-align: middle;
+  display: inline-block;
+  &::after{
+    content: '';
+    display: block;
+    clear: both;
+  }
+  > li{
+    float: left;
+    margin-right: 10px;
+  }
+}
+
+.btns{
+  text-align: right;
+}
