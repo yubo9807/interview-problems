@@ -19,22 +19,24 @@
 .icons{
   position: absolute;
   z-index: -9;
-  line-height: 2;
+  > li{
+    height: 51px;
+    line-height: 30px;
+  }
 }
 
 .staff-info{
   margin-left: 20px;
   line-height: 2;
   vertical-align: middle;
-  display: inline-block;
   &::after{
     content: '';
     display: block;
     clear: both;
   }
-  > li{
-    float: left;
-    margin-right: 10px;
+  :global(.el-form-item){
+    display: inline-block;
+    padding: 0 10px;
   }
 }
 

@@ -3,6 +3,7 @@ import { defineComponent, h, onMounted, Ref, ref } from 'vue';
 import { cloneObj } from '@/utils/object';
 import { randomNum } from '@/utils/number';
 import drag from './drag';
+import { ElForm, ElFormItem, ElInput } from 'element-plus';
 
 type Id = number | string
 
@@ -39,6 +40,14 @@ export default defineComponent(() => {
     { id: 4, parent: 2, name: '员工4', age: 10, activace: false, isAdmin: false },
     { id: 5, parent: 2, name: '员工5', age: 99, activace: true, isAdmin: false },
   ])
+  const rules = {
+    name: [
+      { required: true, message: '请输入用户名', trigger: 'blur' },
+    ],
+    age: [
+      { required: true, message: '请输入年龄', trigger: 'blur' },
+    ]
+  }
 
 
 
@@ -144,13 +153,20 @@ export default defineComponent(() => {
     staff.value = backupsStaff;
   }
 
+  const elformRef = ref(null);
+
   /**
    * 提交数据
    */
   function submit() {
-    const newOrganization = cloneObj(organization.value);
-    const newStaff = cloneObj(staff.value);
-    console.log(newOrganization, newStaff)
+    elformRef.value.validate(valid => {
+      console.log(valid)
+      if (!valid) return;
+
+      const newOrganization = cloneObj(organization.value);
+      const newStaff = cloneObj(staff.value);
+      console.log(newOrganization, newStaff)
+    })
   }
   // #endregion
 
@@ -208,13 +224,24 @@ export default defineComponent(() => {
                 staff.value.map((item, j) => {
                   if (item.parent !== val.id) return null; 
                   return <li key={j} draggable data-name={i + '-' + j}>
-                    <ul class={style['staff-info']}>
-                      <li><input type="text" placeholder='请输入员工名称' value={item.name} onChange={(e: any) => item.name = e.target.value} /></li>
-                      <li><input type="text" placeholder='请输入员工年龄' value={item.age} onChange={(e: any) => item.age = e.target.value} /></li>
-                      <li><input type="checkbox" checked={item.activace} onChange={(e: any) => item.activace = e.target.checked} /></li>
-                      <li><input type="checkbox" disabled={!item.activace} checked={item.isAdmin} onChange={(e: any) => item.isAdmin = e.target.checked} /></li>
-                      <li><button onClick={() => delStaff(item.id)}>删除</button></li>
-                    </ul>
+                    <ElForm class={style['staff-info']} ref={elformRef} model={item} rules={rules}>{{
+                      default: () => <div>
+                        <ElFormItem prop='name'>{{
+                          default: () => <ElInput placeholder='请输入员工名称' modelValue={item.name} onInput={val => item.name = val}/>
+                        }}</ElFormItem>
+                        <ElFormItem prop='age'>{{
+                          default: () => <ElInput placeholder='请输入员工年龄' modelValue={item.age} onInput={val => item.age = Number(val)} />
+                        }}</ElFormItem>
+                        <ElFormItem>{{
+                          default: () => <input type="checkbox" checked={item.activace} onChange={(e: any) => item.activace = e.target.checked} />
+                        }}</ElFormItem>
+                        <ElFormItem>{{
+                          default: () => <input type="checkbox" disabled={!item.activace} checked={item.isAdmin} onChange={(e: any) => item.isAdmin = e.target.checked} />
+                        }}</ElFormItem>
+                        <button onClick={() => delStaff(item.id)}>删除</button>
+                      </div>
+                    }}
+                    </ElForm>
                   </li>;
                 })
               }</ul>
@@ -230,12 +257,12 @@ export default defineComponent(() => {
     }
   });
   // #endregion
-
-
-
+  
+  
+  
   return () => h(<div ref={organizationEl}>
     <Recursive />
-    
+
     <button onClick={addOrganization}>添加组织</button>
 
     <div class={style.btns}>
