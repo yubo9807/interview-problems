@@ -11,6 +11,10 @@
     right: 20px;
     cursor: pointer;
   }
+  .organization-input{
+    width: 200px;
+    display: inline-block;
+  }
 }
 :global(.active[data-name]){
   background: rgba(0,0,0,.2);

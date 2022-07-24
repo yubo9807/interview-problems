@@ -210,44 +210,45 @@ export default defineComponent(() => {
           if (val.parent !== props.parent) return null;
 
           return <li key={i} class={style.box} draggable data-name={i}>
-            <div>
-              <div>组织名称：
-                <input type="text" placeholder='请输入组织名称' value={val.name} onChange={(e: any) => val.name = e.target.value} />
-                <span class={style['delete-organization']} onClick={() => delOrganization(val.id)}>X</span>
-              </div>
+            组织名称：
+            <ElForm class={style['organization-input']} ref={elformRef} model={val} rules={rules}>{{
+              default: () => <ElFormItem prop='name'>{{
+                default: () => <ElInput placeholder='请输入组织名称' modelValue={val.name} onInput={value => val.name = value} />
+              }}</ElFormItem>
+            }}</ElForm>
+            <span class={style['delete-organization']} onClick={() => delOrganization(val.id)}>X</span>
 
-              {/* 员工列表 */}
-              <ul class={style.icons}>{staff.value.map((item, j) => {
-                if (item.parent === val.id) return <li>=</li>;
-              })}</ul>
-              <ul>{
-                staff.value.map((item, j) => {
-                  if (item.parent !== val.id) return null; 
-                  return <li key={j} draggable data-name={i + '-' + j}>
-                    <ElForm class={style['staff-info']} ref={elformRef} model={item} rules={rules}>{{
-                      default: () => <div>
-                        <ElFormItem prop='name'>{{
-                          default: () => <ElInput placeholder='请输入员工名称' modelValue={item.name} onInput={val => item.name = val}/>
-                        }}</ElFormItem>
-                        <ElFormItem prop='age'>{{
-                          default: () => <ElInput placeholder='请输入员工年龄' modelValue={item.age} onInput={val => item.age = Number(val)} />
-                        }}</ElFormItem>
-                        <ElFormItem>{{
-                          default: () => <input type="checkbox" checked={item.activace} onChange={(e: any) => item.activace = e.target.checked} />
-                        }}</ElFormItem>
-                        <ElFormItem>{{
-                          default: () => <input type="checkbox" disabled={!item.activace} checked={item.isAdmin} onChange={(e: any) => item.isAdmin = e.target.checked} />
-                        }}</ElFormItem>
-                        <button onClick={() => delStaff(item.id)}>删除</button>
-                      </div>
-                    }}
-                    </ElForm>
-                  </li>;
-                })
-              }</ul>
+            {/* 员工列表 */}
+            <ul class={style.icons}>{staff.value.map((item, j) => {
+              if (item.parent === val.id) return <li>=</li>;
+            })}</ul>
+            <ul>{
+              staff.value.map((item, j) => {
+                if (item.parent !== val.id) return null; 
+                return <li key={j} draggable data-name={i + '-' + j}>
+                  <ElForm class={style['staff-info']} ref={elformRef} model={item} rules={rules}>{{
+                    default: () => <div>
+                      <ElFormItem prop='name'>{{
+                        default: () => <ElInput placeholder='请输入员工名称' modelValue={item.name} onInput={val => item.name = val}/>
+                      }}</ElFormItem>
+                      <ElFormItem prop='age'>{{
+                        default: () => <ElInput placeholder='请输入员工年龄' modelValue={item.age} onInput={val => item.age = Number(val)} />
+                      }}</ElFormItem>
+                      <ElFormItem>{{
+                        default: () => <input type="checkbox" checked={item.activace} onChange={(e: any) => item.activace = e.target.checked} />
+                      }}</ElFormItem>
+                      <ElFormItem>{{
+                        default: () => <input type="checkbox" disabled={!item.activace} checked={item.isAdmin} onChange={(e: any) => item.isAdmin = e.target.checked} />
+                      }}</ElFormItem>
+                      <button onClick={() => delStaff(item.id)}>删除</button>
+                    </div>
+                  }}
+                  </ElForm>
+                </li>;
+              })
+            }</ul>
 
-              <button onClick={() => addStaff(val.id)}>添加员工</button>
-            </div>
+            <button onClick={() => addStaff(val.id)}>添加员工</button>
 
             {/* 组件递归渲染 */}
             <Recursive parent={val.id} />
