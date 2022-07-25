@@ -162,18 +162,19 @@ export default defineComponent(() => {
   async function submit() {
     const locks = [];
 
-    for await (const val of elformRef.value) {
+    elformRef.value.forEach((val, index, self) => {
       val.validate(async valid => {
         locks.push(!valid);
+        locks.length >= self.length && send();
       });
-    }
-    
-    setTimeout(() => {
+    })
+
+    function send() {
       if (locks.includes(true)) return;
       const newOrganization = cloneObj(organization.value);
       const newStaff = cloneObj(staff.value);
       console.log(newOrganization, newStaff);
-    }, 300)
+    }
   }
   // #endregion
 
