@@ -1,7 +1,7 @@
 import style from './index.module.scss';
-import { defineComponent, h, onMounted, Ref, ref } from 'vue';
+import { defineComponent, h, onMounted, reactive, Ref, ref } from 'vue';
 import { cloneObj } from '@/utils/object';
-import { randomNum } from '@/utils/number';
+import { createNum, randomNum } from '@/utils/number';
 import drag from './drag';
 import { ElForm, ElFormItem, ElInput } from 'element-plus';
 
@@ -21,6 +21,7 @@ interface Staff {
   isAdmin: boolean
 }
 
+const iter = createNum();
 
 
 export default defineComponent(() => {
@@ -30,7 +31,7 @@ export default defineComponent(() => {
     { id: 1, parent: null, name: '公司' },
     { id: 2, parent: null, name: '组织-1' },
     { id: 3, parent: 1, name: '组织-2' },
-    { id: 4, parent: 3, name: '组织-2' },
+    // { id: 4, parent: 3, name: '组织-2' },
   ])
   // 员工数据
   const staff: Ref<Staff[]> = ref([
@@ -153,20 +154,26 @@ export default defineComponent(() => {
     staff.value = backupsStaff;
   }
 
-  const elformRef = ref(null);
+  const elformRef = ref([]);
 
   /**
    * 提交数据
    */
-  function submit() {
-    elformRef.value.validate(valid => {
-      console.log(valid)
-      if (!valid) return;
+  async function submit() {
+    const locks = [];
 
+    for await (const val of elformRef.value) {
+      val.validate(async valid => {
+        locks.push(!valid);
+      });
+    }
+    
+    setTimeout(() => {
+      if (locks.includes(true)) return;
       const newOrganization = cloneObj(organization.value);
       const newStaff = cloneObj(staff.value);
-      console.log(newOrganization, newStaff)
-    })
+      console.log(newOrganization, newStaff);
+    }, 300)
   }
   // #endregion
 
@@ -211,7 +218,7 @@ export default defineComponent(() => {
 
           return <li key={i} class={style.box} draggable data-name={i}>
             组织名称：
-            <ElForm class={style['organization-input']} ref={elformRef} model={val} rules={rules}>{{
+            <ElForm class={style['organization-input']} ref={el => elformRef.value[iter.next().value as number] = el} model={val} rules={rules}>{{
               default: () => <ElFormItem prop='name'>{{
                 default: () => <ElInput placeholder='请输入组织名称' modelValue={val.name} onInput={value => val.name = value} />
               }}</ElFormItem>
@@ -226,7 +233,7 @@ export default defineComponent(() => {
               staff.value.map((item, j) => {
                 if (item.parent !== val.id) return null; 
                 return <li key={j} draggable data-name={i + '-' + j}>
-                  <ElForm class={style['staff-info']} ref={elformRef} model={item} rules={rules}>{{
+                  <ElForm class={style['staff-info']} ref={el => elformRef.value[iter.next().value as number] = el} model={item} rules={rules}>{{
                     default: () => <div>
                       <ElFormItem prop='name'>{{
                         default: () => <ElInput placeholder='请输入员工名称' modelValue={item.name} onInput={val => item.name = val}/>
